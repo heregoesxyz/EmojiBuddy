@@ -3,9 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Emoji Buddy · Opulent Hardware</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Brand font -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <link href="https://fonts.googleapis.com/css2?family=Saira:wght@500;600&display=swap" rel="stylesheet">
 
   <style>
@@ -16,6 +14,9 @@
       --accent: #facc15;
       --ring-soft: rgba(148, 163, 184, 0.16);
       --emoji-scale: 1;
+      --emoji-offset-x: 0px;
+      --emoji-offset-y: 0px;
+      --audio-glow: 0;
     }
 
     * {
@@ -53,7 +54,7 @@
 
     .gb-shell {
       position: relative;
-      width: min(420px, 92vw);
+      width: min(420px, 96vw);
       aspect-ratio: 3 / 4;
       border-radius: 30px;
       background:
@@ -235,12 +236,49 @@
       pointer-events: none;
     }
 
+    /* audio glow overlay */
+    .gb-screen::after {
+      content: "";
+      position: absolute;
+      inset: -12%;
+      background: radial-gradient(circle at 50% 0%, var(--shell-light), transparent 60%);
+      mix-blend-mode: screen;
+      opacity: var(--audio-glow);
+      pointer-events: none;
+      transition: opacity 80ms linear;
+    }
+
+    /* MOTION GRAPH -------------------------------------------------------- */
+
+    .motion-graph-shell {
+      position: absolute;
+      top: 6px;
+      left: 8px;
+      right: 8px;
+      height: 30px;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .motion-graph-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      opacity: 0;
+      transition: opacity 180ms ease-out;
+    }
+
+    .motion-graph-canvas.active {
+      opacity: 1;
+    }
+
     .emoji-wrap {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      transform: scale(var(--emoji-scale));
-      transition: transform 160ms ease-out;
+      transform: translate3d(var(--emoji-offset-x), var(--emoji-offset-y), 0)
+                 scale(var(--emoji-scale));
+      transition: transform 80ms linear;
     }
 
     .emoji {
@@ -268,6 +306,18 @@
       100% { transform: scale(1); }
     }
 
+    /* Hard-G stressed bounce */
+    .emoji-hard-g {
+      animation: hardGBounce 360ms cubic-bezier(.34,1.56,.64,1), breathe 6s ease-in-out 360ms infinite;
+    }
+
+    @keyframes hardGBounce {
+      0%   { transform: translateY(0) scale(1); }
+      30%  { transform: translateY(-8px) scale(1.06); }
+      60%  { transform: translateY(4px)  scale(0.98); }
+      100% { transform: translateY(0) scale(1); }
+    }
+
     /* BOTTOM CONTROLS ----------------------------------------------------- */
 
     .gb-bottom {
@@ -286,6 +336,7 @@
       gap: 4px;
       opacity: 0.6;
       filter: drop-shadow(0 1px 0 rgba(15, 23, 42, 0.5));
+      cursor: pointer;
     }
 
     .speaker-dot {
@@ -381,7 +432,7 @@
       border-radius: inherit;
       background: linear-gradient(90deg, #22c55e, #facc15, #f97316);
       box-shadow: 0 0 10px rgba(250, 204, 21, 0.8);
-      transition: transform 260ms ease-out;
+      transition: transform 120ms ease-out, box-shadow 80ms ease-out;
     }
 
     /* SIZE DIAL ----------------------------------------------------------- */
@@ -438,6 +489,8 @@
       font-size: 8px;
     }
 
+    /* shell wobble */
+
     .wobble {
       animation: wobble 520ms ease-in-out;
     }
@@ -450,9 +503,7 @@
       100% { transform: translateX(0) rotate(0deg); }
     }
 
-    /* ------------------------------------------------------------- */
-    /* STARTUP BOOT SEQUENCE */
-    /* ------------------------------------------------------------- */
+    /* STARTUP BOOT SEQUENCE ----------------------------------------------- */
 
     .gb-screen.boot-off {
       opacity: 0;
@@ -504,13 +555,91 @@
       100% { opacity: 0; }
     }
 
+    /* SENSOR PANEL -------------------------------------------------------- */
+
+    .sensor-panel {
+      position: fixed;
+      left: 50%;
+      bottom: max(18px, env(safe-area-inset-bottom, 18px));
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 420px;
+      padding: 0 10px;
+      z-index: 20;
+    }
+
+    .sensor-panel-inner {
+      background: rgba(15, 23, 42, 0.97);
+      border-radius: 18px;
+      padding: 10px 14px 8px;
+      box-shadow:
+        0 16px 40px rgba(0,0,0,0.9),
+        0 0 0 1px rgba(15,23,42,0.9);
+      border: 1px solid rgba(15,23,42,0.9);
+      color: #e5e7eb;
+      font-family: "Saira", system-ui, sans-serif;
+      font-size: 11px;
+    }
+
+    .sensor-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      margin-bottom: 4px;
+    }
+
+    .sensor-text {
+      font-size: 10px;
+      line-height: 1.4;
+      opacity: 0.9;
+    }
+
+    .sensor-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 8px;
+    }
+
+    .sensor-btn {
+      padding: 7px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      background: linear-gradient(135deg, #111827, #020617);
+      color: #e5e7eb;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-family: "Saira", sans-serif;
+      cursor: pointer;
+      box-shadow:
+        0 10px 26px rgba(0,0,0,0.85),
+        0 0 0 1px rgba(0,0,0,0.7);
+    }
+
+    .sensor-panel.hidden {
+      display: none;
+    }
   </style>
 </head>
-
 <body>
+  <!-- Sensor / mic permission panel -->
+  <div class="sensor-panel" id="sensorPanel">
+    <div class="sensor-panel-inner">
+      <div class="sensor-title">Enable Motion &amp; Mic</div>
+      <div class="sensor-text">
+        Mount your phone in its normal driving position, then tap Allow.
+        Emoji Buddy will treat this as “zero” and adapt to bumps, G-forces, and sound over time.
+        No data is stored or shared; all processing happens locally on your device.
+      </div>
+      <div class="sensor-actions">
+        <button class="sensor-btn" id="sensorBtn">Allow</button>
+      </div>
+    </div>
+  </div>
+
   <div class="canvas">
     <div class="gb-shell" id="gb" data-color="grape">
-
       <div class="gb-top">
         <div class="gb-brand">Emoji Buddy</div>
         <div class="gb-top-right">Opulent Hardware</div>
@@ -518,15 +647,36 @@
 
       <div class="gb-screen-frame">
         <div class="gb-screen boot-off boot-flash" id="screen">
+          <div class="motion-graph-shell" id="motionRegion">
+            <canvas class="motion-graph-canvas" id="motionCanvas"></canvas>
+          </div>
           <div class="emoji-wrap" id="emojiWrap">
             <div class="emoji" id="emoji">😀</div>
+          </div>
+
+          <!-- STATE DEBUG LABEL (lower left) -->
+          <div id="stateDebug"
+               style="
+                 position:absolute;
+                 bottom:8px;
+                 left:8px;
+                 padding:4px 6px;
+                 font-size:10px;
+                 font-family:'Saira',sans-serif;
+                 letter-spacing:0.1em;
+                 background:rgba(0,0,0,0.35);
+                 color:rgba(255,255,255,0.85);
+                 border-radius:4px;
+                 pointer-events:none;
+                 text-transform:uppercase;
+               ">
+            STATE: ---
           </div>
         </div>
       </div>
 
       <div class="gb-bottom">
-
-        <div class="speaker">
+        <div class="speaker" id="speaker">
           <div class="speaker-dot"></div><div class="speaker-dot"></div><div class="speaker-dot"></div>
           <div class="speaker-dot"></div><div class="speaker-dot"></div><div class="speaker-dot"></div>
           <div class="speaker-dot"></div><div class="speaker-dot"></div><div class="speaker-dot"></div>
@@ -560,178 +710,783 @@
             <div class="vibe-fill" id="vibeFill"></div>
           </div>
         </div>
-
       </div>
     </div>
   </div>
 
-<script>
+  <script>
+    // ---------- Emoji logic & pools ----------
+    const EMOJI_ALL = [
+      "😀","😃","😄","😁","😆","😅","😂","🤣","🥲","🥹","☺️","😊","😇","🙂","🙃","😉","😌",
+      "😍","🥰","😘","😗","😙","😚","😋","😛","😝","😜","🤪","🤨","🧐","🤓","😎","🥸","🤩",
+      "🥳","🙂‍↕️","😏","😒","🙂‍↔️","😞","😔","😟","😕","🙁","☹️","😣","😖","😫","😩","🥺",
+      "😢","😭","😮‍💨","😤","😠","😡","🤬","🤯","😳","🥵","🥶","😱","😨","😰","😥","😓","🫣",
+      "🤗","🫡","🤔","🫢","🤭","🤫","🤥","😶","😶‍🌫️","😐","😑","😬","🫨","🫠","🙄","😯","😦",
+      "😧","😮","😲","🥱","😴","🫩","🤤","😪","😵","😵‍💫","🫥","🤐","🥴","🤢","🤮","🤧","😷",
+      "🤒","🤕","🤑","🤠","😈","👿","👹","👺","🤡","💩","👻","💀","☠️","👽","👾","🤖","🎃",
+      "😺","😸","😹","😻","😼","😽","🙀","😿","😾"
+    ];
 
-  const emojiList = [
-    "😀","😃","😄","😁","😆","😅","😂","🤣","🥲","🥹","☺️","😊","😇","🙂","🙃","😉","😌",
-    "😍","🥰","😘","😗","😙","😚","😋","😛","😝","😜","🤪","🤨","🧐","🤓","😎","🥸","🤩",
-    "🥳","🙂‍↕️","😏","😒","🙂‍↔️","😞","😔","😟","😕","🙁","☹️","😣","😖","😫","😩","🥺",
-    "😢","😭","😮‍💨","😤","😠","😡","🤬","🤯","😳","🥵","🥶","😱","😨","😰","😥","😓","🫣",
-    "🤗","🫡","🤔","🫢","🤭","🤫","🤥","😶","😶‍🌫️","😐","😑","😬","🫨","🫠","🙄","😯","😦",
-    "😧","😮","😲","🥱","😴","🫩","🤤","😪","😵","😵‍💫","🫥","🤐","🥴","🤢","🤮","🤧","😷",
-    "🤒","🤕","🤑","🤠","😈","👿","👹","👺","🤡","💩","👻","💀","☠️","👽","👾","🤖","🎃",
-    "😺","😸","😹","😻","😼","😽","🙀","😿","😾"
-  ];
+    const EMOJI_CALM_REST   = ["😌","☺️","😊","😇","😴","🫩","😪","🤗","🫠"];
+    const EMOJI_DEEP_REST   = ["😴","😪","🫩"];
+    const EMOJI_HARD_G      = ["😈","👿","🤬","😤","🤯","😱","😳","💩","👹","👺"];
+    const EMOJI_CRUISE      = ["😀","😃","😄","😁","😎","🤠","🤩","🥳","😺","😸","😻"];
+    const EMOJI_ROUGH_ROAD  = ["🤢","🤮","🤧","😷","🤒","🤕","🥴","😵","😵‍💫"];
+    const EMOJI_CALM_MUSIC  = ["😌","☺️","😊","😇","🤗","🫡","🫠","😍","🥰"];
+    const EMOJI_HYPE_MUSIC  = ["🤩","🥳","😝","😜","🤪","😈","😎","🤠","🎃"];
 
-  const gbEl        = document.getElementById("gb");
-  const screenEl    = document.getElementById("screen");
-  const emojiEl     = document.getElementById("emoji");
-  const vibeFillEl  = document.getElementById("vibeFill");
-  const colorMenu   = document.getElementById("colorMenu");
-  const sizeDial    = document.getElementById("sizeDial");
+    // Baseline "personality" faces for rest/neutral/cruise
+    const EMOJI_BASELINE    = ["🙂","☺️","😌","😏"];
 
-  let currentEmoji    = "😀";
-  let lastInteraction = Date.now();
-  let lastChange      = Date.now();
-  let autoEnabled     = false;
-  let holdMs          = randomHoldDuration();
+    // spicy/intense faces we want mostly reserved for “hard” states
+    const EMOJI_SPICY = new Set([
+      "😈","👿","🤬","😡","😠","💩","🤯","😱","😳","🤮","🤢","🥵","👹","👺"
+    ]);
 
-  const sizeLevels = [0.85, 1.0, 1.2];
-  const sizeAngles = [-20, 0, 20];
-  let sizeIndex    = 1;
+    // Safe chaos pool = everything except spicy
+    const SAFE_CHAOS_POOL = EMOJI_ALL.filter(e => !EMOJI_SPICY.has(e));
 
-  function randomHoldDuration() {
-    return 2000 + Math.random() * 28000;
-  }
+    // recent-emoji buffer to avoid immediate repeats (mostly for events)
+    const RECENT_MAX = 8;
+    const recentEmojis = [];
 
-  function randomEmoji() {
-    return emojiList[Math.floor(Math.random() * emojiList.length)];
-  }
+    // session coverage: try to see many unique emojis per drive
+    const SESSION_COVERAGE_TARGET = 40;
+    const sessionSeen = new Set();
 
-  function markInteraction() {
-    lastInteraction = Date.now();
-    autoEnabled = false;
-  }
+    const intenseStates = new Set(["hardG", "roughRoad", "hypeMusic"]);
+    const calmStates    = new Set(["rest", "neutral", "cruise", "calmMusic", "deepRest"]);
 
-  function setEmoji(e) {
-    if (!e) return;
-    currentEmoji = e;
-    emojiEl.textContent = e;
+    // Baseline persistence
+    const BASELINE_DURATION_MS = 3 * 60 * 1000; // 3 minutes
 
-    emojiEl.classList.remove("emoji-pop");
-    void emojiEl.offsetWidth;
-    emojiEl.classList.add("emoji-pop");
+    let baseEmoji = null;
+    let baseEmojiLastSet = 0;
+    let lastEventTime = 0;
+    let currentEmoji = "😀";
+    let currentState = "rest";
 
-    gbEl.classList.remove("wobble");
-    void gbEl.offsetWidth;
-    gbEl.classList.add("wobble");
+    function classifyState(motion, audio) {
+      const { mag, jitter, lastActiveTime } = motion;
+      const level = audio.level ?? 0;
 
-    adjustVibeGauge(e);
-  }
+      const now = Date.now();
+      const stillMs = now - lastActiveTime;
 
-  function adjustVibeGauge(e) {
-    let level = 0.5;
+      const isVeryStill  = mag < 0.08 && jitter < 0.05;
+      const deepRestActive = isVeryStill && level < 0.08 && stillMs > 30000;
 
-    const happySet = "😀😃😄😁😆😅😂🤣☺️😊😇🙂😉😌😍🥰😘😗😙😚😋😛😝😜🤪😎🤩🥳🤗🤠😺😸😹😻😼😽";
-    const lowSet   = "😞😔😟😕🙁☹️😣😖😫😩🥺😢😭😮‍💨😤😠😡🤬😳😰😥😓😿😾";
-    const hotSet   = "🥵🤯😱😨😵😵‍💫";
-    const sickSet  = "🤢🤮🤧😷🤒🤕🥴";
+      // thresholds tuned down so hardG / roughRoad are easier to hit
+      const isRoughRoad     = jitter > 0.25;
+      const isHardG         = mag > 0.40 || jitter > 0.50;
+      const isCornerCruise  = mag > 0.15 && mag <= 0.40 && jitter < 0.45;
 
-    if (happySet.includes(e)) level = 0.82;
-    else if (hotSet.includes(e)) level = 1.0;
-    else if (sickSet.includes(e)) level = 0.3;
-    else if (lowSet.includes(e)) level = 0.2;
-    else level = 0.55;
+      const isCalmMusic  = level > 0.05 && level < 0.25;
+      const isHypeMusic  = level >= 0.25;
 
-    vibeFillEl.style.transform = `scaleX(${level})`;
-  }
+      if (deepRestActive) return "deepRest";
 
-  function nextRandomEmoji() {
-    let next = randomEmoji();
-    if (emojiList.length > 1 && next === currentEmoji)
-      next = randomEmoji();
-    setEmoji(next);
-  }
+      if (isVeryStill) {
+        if (level < 0.05) return "rest";
+        if (isCalmMusic)  return "calmMusic";
+        if (isHypeMusic)  return "hypeMusic";
+        return "rest";
+      }
 
-  function tick() {
-    const now = Date.now();
-    const idle = now - lastInteraction;
+      if (isRoughRoad)    return "roughRoad";
+      if (isHardG)        return "hardG";
+      if (isCornerCruise) return "cruise";
 
-    if (!autoEnabled && idle >= 10000) {
-      autoEnabled = true;
-      lastChange = now;
-      holdMs = randomHoldDuration();
+      if (isHypeMusic) return "hypeMusic";
+      if (isCalmMusic) return "calmMusic";
+
+      return "neutral";
     }
 
-    if (autoEnabled && now - lastChange >= holdMs) {
-      nextRandomEmoji();
-      lastChange = now;
-      holdMs = randomHoldDuration();
+    function randomEmojiFrom(list) {
+      return list[Math.floor(Math.random() * list.length)];
     }
-  }
 
-  setInterval(tick, 500);
+    function pickEmojiForState(state, prevEmoji) {
+      let pool;
 
-  colorMenu.addEventListener("click", e => {
-    const target = e.target.closest(".color-swatch");
-    if (!target) return;
-    const color = target.dataset.color;
-    gbEl.setAttribute("data-color", color);
-    markInteraction();
-    try { localStorage.setItem("emojiBuddyColor", color); } catch(_) {}
-  });
+      switch (state) {
+        case "deepRest":
+          pool = EMOJI_DEEP_REST;
+          break;
+        case "rest":
+          pool = EMOJI_CALM_REST;
+          break;
+        case "hardG":
+          pool = EMOJI_HARD_G;
+          break;
+        case "cruise":
+          pool = EMOJI_CRUISE;
+          break;
+        case "roughRoad":
+          pool = EMOJI_ROUGH_ROAD;
+          break;
+        case "calmMusic":
+          pool = EMOJI_CALM_MUSIC;
+          break;
+        case "hypeMusic":
+          pool = EMOJI_HYPE_MUSIC;
+          break;
+        case "neutral":
+        default:
+          pool = EMOJI_ALL;
+          break;
+      }
 
-  function applySize() {
-    const scale = sizeLevels[sizeIndex];
-    document.documentElement.style.setProperty("--emoji-scale", scale);
-    sizeDial.style.transform = `rotate(${sizeAngles[sizeIndex]}deg)`;
-  }
+      // --- CHAOS VARIETY WITHOUT UNLOCKING SPICY IN CALM STATES ---
+      let chaosChance = 0.0;
 
-  sizeDial.addEventListener("click", () => {
-    sizeIndex = (sizeIndex + 1) % sizeLevels.length;
-    applySize();
-    markInteraction();
-  });
+      if (state === "rest" || state === "cruise" || state === "calmMusic") {
+        // calm / cruising → lots of variety from SAFE pool
+        chaosChance = 0.65;
+      } else if (state === "hypeMusic" || state === "neutral") {
+        chaosChance = 0.45;
+      } else if (state !== "deepRest") {
+        // hardG / roughRoad still themed but with a little chaos
+        chaosChance = 0.25;
+      }
 
-  screenEl.addEventListener("click", () => {
-    markInteraction();
-    nextRandomEmoji();
-  });
+      if (chaosChance > 0 && Math.random() < chaosChance) {
+        if (intenseStates.has(state)) {
+          pool = EMOJI_ALL; // full chaos for intense
+        } else {
+          pool = SAFE_CHAOS_POOL; // safe faces for calm chaos
+        }
+      }
 
-  /* -------------------------------------------------
-     STARTUP INIT
-     ------------------------------------------------- */
+      // --- SESSION COVERAGE: prefer emojis not yet used this drive ---
+      let candidatePool = pool;
 
-  (function init() {
+      if (sessionSeen.size < SESSION_COVERAGE_TARGET) {
+        const unseen = pool.filter(e => !sessionSeen.has(e));
+        if (unseen.length > 0) {
+          candidatePool = unseen;
+        }
+      }
 
-    // load saved color
-    try {
-      const saved = localStorage.getItem("emojiBuddyColor");
-      if (saved) gbEl.setAttribute("data-color", saved);
-    } catch(_) {}
+      let next = randomEmojiFrom(candidatePool);
 
-    applySize();
+      // avoid repeating last or very recent emojis
+      let attempts = 0;
+      while (
+        candidatePool.length > 1 &&
+        (next === prevEmoji || recentEmojis.includes(next)) &&
+        attempts < 12
+      ) {
+        next = randomEmojiFrom(candidatePool);
+        attempts++;
+      }
 
-    // pick random emoji at startup
-    const startEmoji = randomEmoji();
-    currentEmoji = startEmoji;
-    emojiEl.textContent = startEmoji;
-    adjustVibeGauge(startEmoji);
+      // update recent history
+      recentEmojis.unshift(next);
+      if (recentEmojis.length > RECENT_MAX) recentEmojis.pop();
 
-    // POWER-OFF look
-    screenEl.classList.add("boot-off");
-    screenEl.classList.add("boot-flash");
+      // update session coverage
+      sessionSeen.add(next);
 
-    // POWER-UP sequence
-    setTimeout(() => {
-      screenEl.classList.add("boot-on");
-      screenEl.classList.remove("boot-off");
+      return next;
+    }
 
-      // remove flash overlay
-      setTimeout(() => {
-        screenEl.classList.remove("boot-flash");
-      }, 600);
+    function pickBaselineEmoji(prevEmoji) {
+      // simple: choose from EMOJI_BASELINE, avoid repeating previous if possible
+      let pool = EMOJI_BASELINE.slice();
+      if (pool.length > 1 && pool.includes(prevEmoji)) {
+        pool = pool.filter(e => e !== prevEmoji);
+      }
+      return randomEmojiFrom(pool);
+    }
 
-    }, 260);
+    function vibeBaseFromEmoji(e) {
+      let level = 0.5;
 
-  })();
+      const happySet = "😀😃😄😁😆😅😂🤣☺️😊😇🙂😉😌😍🥰😘😗😙😚😋😛😝😜🤪😎🤩🥳🤗🤠😺😸😹😻😼😽";
+      const lowSet   = "😞😔😟😕🙁☹️😣😖😫😩🥺😢😭😮‍💨😤😠😡🤬😳😰😥😓😿😾";
+      const hotSet   = "🥵🤯😱😨😵😵‍💫";
+      const sickSet  = "🤢🤮🤧😷🤒🤕🥴";
 
-</script>
+      if (happySet.includes(e)) level = 0.82;
+      else if (hotSet.includes(e)) level = 1.0;
+      else if (sickSet.includes(e)) level = 0.3;
+      else if (lowSet.includes(e)) level = 0.2;
+      else level = 0.55;
 
+      return level;
+    }
+
+    // ---------- Motion manager with adaptive baseline ----------
+    class MotionManager {
+      constructor(onUpdate) {
+        this.onUpdate = onUpdate;
+        this.motionX = 0;
+        this.motionY = 0;
+        this.prevMotionX = 0;
+        this.prevMotionY = 0;
+        this.motionMag = 0;
+        this.motionJitter = 0;
+        this.lastActiveTime = Date.now();
+
+        // baseline orientation, adapts slowly to "normal chaos"
+        this.baseX = 0;
+        this.baseY = 0;
+        this.baseZ = 0;
+        this.baselineInitialized = false;
+
+        this.prevRawX = 0;
+        this.prevRawY = 0;
+        this.prevRawZ = 0;
+      }
+
+      async start() {
+        if (typeof DeviceMotionEvent !== "undefined" &&
+            typeof DeviceMotionEvent.requestPermission === "function") {
+          try {
+            const res = await DeviceMotionEvent.requestPermission();
+            if (res !== "granted") return;
+          } catch (e) {
+            console.warn("Motion permission error:", e);
+            return;
+          }
+        }
+
+        window.addEventListener("devicemotion", this.handleMotion.bind(this), true);
+      }
+
+      handleMotion(event) {
+        const acc = event.accelerationIncludingGravity;
+        if (!acc) return;
+
+        let rawX = acc.x || 0;
+        let rawY = acc.y || 0;
+        let rawZ = acc.z || 0;
+
+        if (!this.baselineInitialized) {
+          this.baseX = rawX;
+          this.baseY = rawY;
+          this.baseZ = rawZ;
+          this.prevRawX = rawX;
+          this.prevRawY = rawY;
+          this.prevRawZ = rawZ;
+          this.baselineInitialized = true;
+        }
+
+        // how much raw acceleration changed since last frame
+        const dX = rawX - this.prevRawX;
+        const dY = rawY - this.prevRawY;
+        const dZ = rawZ - this.prevRawZ;
+        const rawDelta = Math.sqrt(dX*dX + dY*dY + dZ*dZ);
+
+        this.prevRawX = rawX;
+        this.prevRawY = rawY;
+        this.prevRawZ = rawZ;
+
+        // slowly adapt baseline when changes are small
+        const deltaThreshold = 0.35;
+        if (rawDelta < deltaThreshold) {
+          const beta = 0.02;
+          this.baseX += beta * (rawX - this.baseX);
+          this.baseY += beta * (rawY - this.baseY);
+          this.baseZ += beta * (rawZ - this.baseZ);
+        }
+
+        // dynamic acceleration relative to baseline
+        let ax = rawX - this.baseX;
+        let ay = rawY - this.baseY;
+        let az = rawZ - this.baseZ;
+
+        const sensitivity = 6.0;
+        const maxOffset   = 32;
+
+        // Invert X so left/right feel better aligned with turns
+        let targetX = -ax * sensitivity;
+        let targetY = -ay * sensitivity;
+
+        targetX = Math.max(-maxOffset, Math.min(maxOffset, targetX));
+        targetY = Math.max(-maxOffset, Math.min(maxOffset, targetY));
+
+        const alpha = 0.25;
+        this.motionX = this.motionX + alpha * (targetX - this.motionX);
+        this.motionY = this.motionY + alpha * (targetY - this.motionY);
+
+        const normX = Math.max(-1, Math.min(1, this.motionX / maxOffset));
+        const normY = Math.max(-1, Math.min(1, this.motionY / maxOffset));
+
+        const dynMagRaw = Math.min(
+          1,
+          Math.sqrt(ax*ax + ay*ay + az*az) / 6
+        );
+        const magAlpha = 0.12;
+        this.motionMag = this.motionMag + magAlpha * (dynMagRaw - this.motionMag);
+
+        const diff = Math.abs(this.motionX - this.prevMotionX) +
+                     Math.abs(this.motionY - this.prevMotionY);
+        this.prevMotionX = this.motionX;
+        this.prevMotionY = this.motionY;
+
+        const diffNorm = Math.min(1, diff / 20);
+        const jitterAlpha = 0.15;
+        this.motionJitter = this.motionJitter + jitterAlpha * (diffNorm - this.motionJitter);
+
+        if (dynMagRaw > 0.03 || diffNorm > 0.03) {
+          this.lastActiveTime = Date.now();
+        }
+
+        this.onUpdate({
+          motionX: this.motionX,
+          motionY: this.motionY,
+          normX,
+          normY,
+          mag: this.motionMag,
+          jitter: this.motionJitter,
+          lastActiveTime: this.lastActiveTime
+        });
+      }
+    }
+
+    // ---------- Audio manager with adaptive baseline ----------
+    class AudioManager {
+      constructor(onUpdate) {
+        this.onUpdate = onUpdate;
+        this.audioLevel = 0;
+        this.noiseFloor = 0.05;
+      }
+
+      async start() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          console.warn("getUserMedia not supported");
+          return;
+        }
+
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: false
+            }
+          });
+
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          const audioCtx = new AudioCtx();
+          await audioCtx.resume();
+
+          const source = audioCtx.createMediaStreamSource(stream);
+          const analyser = audioCtx.createAnalyser();
+          analyser.fftSize = 1024;
+          const data = new Uint8Array(analyser.frequencyBinCount);
+          source.connect(analyser);
+
+          const loop = () => {
+            analyser.getByteFrequencyData(data);
+            let sum = 0;
+            for (let i = 0; i < data.length; i++) sum += data[i];
+            const avg = sum / data.length;
+            const norm = avg / 255;
+            let levelRaw = Math.min(1, norm * 3);
+
+            // adapt noise floor so constant music/road noise becomes normal
+            if (levelRaw < this.noiseFloor) {
+              this.noiseFloor += 0.02 * (levelRaw - this.noiseFloor);
+            } else {
+              this.noiseFloor += 0.005 * (levelRaw - this.noiseFloor);
+            }
+
+            let level = levelRaw - this.noiseFloor;
+            if (level < 0) level = 0;
+            level = Math.min(1, level * 3);
+
+            const aAlpha = 0.12;
+            this.audioLevel = this.audioLevel + aAlpha * (level - this.audioLevel);
+
+            this.onUpdate({ level: this.audioLevel });
+
+            requestAnimationFrame(loop);
+          };
+
+          loop();
+        } catch (err) {
+          console.warn("Audio permission error:", err);
+        }
+      }
+    }
+
+    // ---------- Screen UI ----------
+    class ScreenUI {
+      constructor() {
+        this.gbEl       = document.getElementById("gb");
+        this.screenEl   = document.getElementById("screen");
+        this.emojiEl    = document.getElementById("emoji");
+        this.vibeFillEl = document.getElementById("vibeFill");
+        this.colorMenu  = document.getElementById("colorMenu");
+        this.sizeDial   = document.getElementById("sizeDial");
+
+        this.sizeLevels = [0.85, 1.0, 1.2];
+        this.sizeAngles = [-20, 0, 20];
+        this.sizeIndex  = 1;
+
+        this.vibeBaseLevel = 0.5;
+
+        this.initColor();
+        this.initSizeDial();
+      }
+
+      initColor() {
+        try {
+          const saved = localStorage.getItem("emojiBuddyColor");
+          if (saved) this.gbEl.setAttribute("data-color", saved);
+        } catch (_) {}
+
+        this.colorMenu.addEventListener("click", (e) => {
+          const target = e.target.closest(".color-swatch");
+          if (!target) return;
+          const color = target.dataset.color;
+          this.gbEl.setAttribute("data-color", color);
+          try { localStorage.setItem("emojiBuddyColor", color); } catch(_) {}
+          if (this.onColorChange) this.onColorChange();
+        });
+      }
+
+      initSizeDial() {
+        this.applySize();
+        this.sizeDial.addEventListener("click", () => {
+          this.sizeIndex = (this.sizeIndex + 1) % this.sizeLevels.length;
+          this.applySize();
+        });
+      }
+
+      applySize() {
+        const scale = this.sizeLevels[this.sizeIndex];
+        document.documentElement.style.setProperty("--emoji-scale", scale);
+        this.sizeDial.style.transform = `rotate(${this.sizeAngles[this.sizeIndex]}deg)`;
+      }
+
+      forceCenterEmoji() {
+        document.documentElement.style.setProperty("--emoji-offset-x", "0px");
+        document.documentElement.style.setProperty("--emoji-offset-y", "0px");
+      }
+
+      updateMotionOffset(motionX, motionY) {
+        document.documentElement.style.setProperty("--emoji-offset-x", motionX.toFixed(1) + "px");
+        document.documentElement.style.setProperty("--emoji-offset-y", motionY.toFixed(1) + "px");
+      }
+
+      updateAudioGlow(level) {
+        document.documentElement.style
+          .setProperty("--audio-glow", (level * 1.0).toFixed(3));
+
+        const pulsed = Math.min(1, this.vibeBaseLevel * (0.7 + level * 1.0));
+        this.vibeFillEl.style.transform = `scaleX(${pulsed.toFixed(3)})`;
+
+        const extra = 10 + level * 32;
+        this.vibeFillEl.style.boxShadow =
+          `0 0 ${extra.toFixed(1)}px rgba(250, 204, 21, 0.98)`;
+      }
+
+      setEmoji(emoji, state) {
+        this.emojiEl.textContent = emoji;
+
+        this.emojiEl.classList.remove("emoji-pop", "emoji-hard-g");
+        void this.emojiEl.offsetWidth;
+
+        if (state === "hardG") {
+          this.emojiEl.classList.add("emoji-hard-g");
+        } else {
+          this.emojiEl.classList.add("emoji-pop");
+        }
+
+        this.gbEl.classList.remove("wobble");
+        void this.gbEl.offsetWidth;
+        this.gbEl.classList.add("wobble");
+
+        const base = vibeBaseFromEmoji(emoji);
+        this.vibeBaseLevel = base;
+        this.vibeFillEl.style.transform = `scaleX(${base})`;
+      }
+
+      getCurrentThemeLightColor() {
+        const styles = getComputedStyle(this.gbEl);
+        return styles.getPropertyValue("--shell-light").trim() || "#7c3aed";
+      }
+
+      boot() {
+        this.screenEl.classList.add("boot-off");
+        this.screenEl.classList.add("boot-flash");
+
+        setTimeout(() => {
+          this.screenEl.classList.add("boot-on");
+          this.screenEl.classList.remove("boot-off");
+
+          setTimeout(() => {
+            this.screenEl.classList.remove("boot-flash");
+          }, 600);
+        }, 260);
+      }
+    }
+
+    // ---------- Motion graph UI ----------
+    class MotionGraphUI {
+      constructor() {
+        this.region  = document.getElementById("motionRegion");
+        this.canvas  = document.getElementById("motionCanvas");
+        this.ctx     = this.canvas.getContext("2d");
+        this.enabled = false;
+        this.trail   = [];
+        this.TRAIL_LENGTH = 20;
+        this.width   = 0;
+        this.height  = 0;
+        this.color   = "#7c3aed";
+
+        window.addEventListener("resize", () => this.resize());
+        this.resize();
+        this.renderLoop();
+      }
+
+      setEnabled(on) {
+        this.enabled = on;
+        if (on) {
+          this.canvas.classList.add("active");
+        } else {
+          this.canvas.classList.remove("active");
+          this.trail = [];
+          this.ctx.clearRect(0, 0, this.width, this.height);
+        }
+      }
+
+      toggle() {
+        this.setEnabled(!this.enabled);
+      }
+
+      setColor(color) {
+        this.color = color || "#7c3aed";
+      }
+
+      resize() {
+        const rect = this.region.getBoundingClientRect();
+        const dpr  = window.devicePixelRatio || 1;
+        this.width  = rect.width;
+        this.height = rect.height;
+        this.canvas.width  = this.width * dpr;
+        this.canvas.height = this.height * dpr;
+        this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      update(normX, normY) {
+        if (!this.enabled || !this.width || !this.height) return;
+
+        const margin = 4;
+        const cx = this.width / 2;
+        const cy = this.height / 2;
+        const maxX = (this.width / 2) - margin;
+        const maxY = (this.height / 2) - margin;
+
+        const px = cx + normX * maxX;
+        const py = cy + normY * maxY;
+
+        this.trail.unshift({ x: px, y: py });
+        if (this.trail.length > this.TRAIL_LENGTH) this.trail.pop();
+      }
+
+      draw() {
+        if (!this.width || !this.height) return;
+
+        this.ctx.clearRect(0, 0, this.width, this.height);
+        if (!this.enabled) return;
+
+        const spacing = 8;
+        this.ctx.save();
+        this.ctx.fillStyle = this.color;
+        this.ctx.globalAlpha = 0.16;
+        for (let y = 2; y < this.height; y += spacing) {
+          for (let x = 2; x < this.width; x += spacing) {
+            this.ctx.fillRect(x, y, 1.5, 1.5);
+          }
+        }
+        this.ctx.restore();
+
+        for (let i = 0; i < this.trail.length; i++) {
+          const t = this.trail[i];
+          const alpha = 1 - i / this.TRAIL_LENGTH;
+          const size = 5 - (i * 0.08);
+          const half = size / 2;
+
+          this.ctx.save();
+          this.ctx.globalAlpha = 0.22 + alpha * 0.6;
+          this.ctx.fillStyle = this.color;
+          this.ctx.fillRect(t.x - half, t.y - half, size, size);
+          this.ctx.restore();
+        }
+      }
+
+      renderLoop() {
+        this.draw();
+        requestAnimationFrame(() => this.renderLoop());
+      }
+    }
+
+    // ---------- State debug helper ----------
+    function updateStateDebug(state) {
+      const el = document.getElementById("stateDebug");
+      if (!el) return;
+      el.textContent = "STATE: " + (state || "---");
+    }
+
+    // ---------- Main wiring ----------
+
+    const screenUI    = new ScreenUI();
+    const graphUI     = new MotionGraphUI();
+    const sensorPanel = document.getElementById("sensorPanel");
+    const sensorBtn   = document.getElementById("sensorBtn");
+    const speakerEl   = document.getElementById("speaker");
+    const screenEl    = document.getElementById("screen");
+
+    let motionState = {
+      motionX: 0,
+      motionY: 0,
+      normX: 0,
+      normY: 0,
+      mag: 0,
+      jitter: 0,
+      lastActiveTime: Date.now()
+    };
+
+    let audioState  = { level: 0 };
+
+    const motionManager = new MotionManager((state) => {
+      motionState = state;
+      screenUI.updateMotionOffset(state.motionX, state.motionY);
+      graphUI.update(state.normX, state.normY);
+    });
+
+    const audioManager = new AudioManager((state) => {
+      audioState = state;
+      screenUI.updateAudioGlow(state.level);
+    });
+
+    screenUI.onColorChange = () => {
+      const color = screenUI.getCurrentThemeLightColor();
+      graphUI.setColor(color);
+    };
+
+    // Tap on screen => manually cycle baseline personality
+    screenEl.addEventListener("click", () => {
+      const now = Date.now();
+      const emoji = pickBaselineEmoji(currentEmoji);
+      baseEmoji = emoji;
+      baseEmojiLastSet = now;
+      currentEmoji = emoji;
+      screenUI.setEmoji(emoji, currentState);
+    });
+
+    // Speaker => toggle graph overlay
+    speakerEl.addEventListener("click", (e) => {
+      e.stopPropagation();
+      graphUI.toggle();
+    });
+
+    speakerEl.addEventListener("touchend", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      graphUI.toggle();
+    }, { passive: false });
+
+    // Sensor panel allow
+    sensorBtn.addEventListener("click", async () => {
+      await Promise.allSettled([
+        motionManager.start(),
+        audioManager.start()
+      ]);
+      sensorPanel.classList.add("hidden");
+    });
+
+    function tick() {
+      const now = Date.now();
+      const newState = classifyState(motionState, audioState);
+      updateStateDebug(newState);
+
+      const wasIntense = intenseStates.has(currentState);
+      const isIntense  = intenseStates.has(newState);
+
+      // --- Intense incident states (hardG / roughRoad / hypeMusic) ---
+      if (isIntense) {
+        // entering or changing incident type
+        if (!wasIntense || newState !== currentState || now - lastEventTime > 3000) {
+          const emoji = pickEmojiForState(newState, currentEmoji);
+          currentEmoji = emoji;
+          screenUI.setEmoji(emoji, newState);
+          lastEventTime = now;
+        }
+        currentState = newState;
+        return; // during incidents we don't touch baseline timers
+      }
+
+      // --- Calm / neutral states ---
+      if (wasIntense && !isIntense) {
+        // just exited an intense state → pick a new baseline
+        const emoji = pickBaselineEmoji(currentEmoji);
+        baseEmoji = emoji;
+        baseEmojiLastSet = now;
+        currentEmoji = emoji;
+        screenUI.setEmoji(emoji, newState);
+        currentState = newState;
+        return;
+      }
+
+      // staying in calm / neutral region
+      currentState = newState;
+
+      // ensure we have a baseline emoji
+      if (!baseEmoji) {
+        const emoji = pickBaselineEmoji(currentEmoji);
+        baseEmoji = emoji;
+        baseEmojiLastSet = now;
+        currentEmoji = emoji;
+        screenUI.setEmoji(emoji, newState);
+        return;
+      }
+
+      // if we've been calm for long enough, rotate to a new baseline
+      if (now - baseEmojiLastSet > BASELINE_DURATION_MS) {
+        const emoji = pickBaselineEmoji(baseEmoji);
+        baseEmoji = emoji;
+        baseEmojiLastSet = now;
+        currentEmoji = emoji;
+        screenUI.setEmoji(emoji, newState);
+      } else {
+        // keep showing current baseline
+        if (currentEmoji !== baseEmoji) {
+          currentEmoji = baseEmoji;
+          screenUI.setEmoji(baseEmoji, newState);
+        }
+      }
+    }
+
+    setInterval(tick, 350);
+
+    function init() {
+      screenUI.forceCenterEmoji();
+
+      const now = Date.now();
+      const initState = classifyState(motionState, audioState);
+      currentState = initState;
+
+      const initBaseline = pickBaselineEmoji(currentEmoji);
+      baseEmoji = initBaseline;
+      baseEmojiLastSet = now;
+      currentEmoji = initBaseline;
+
+      screenUI.setEmoji(initBaseline, initState);
+      updateStateDebug(initState);
+
+      const color = screenUI.getCurrentThemeLightColor();
+      graphUI.setColor(color);
+
+      screenUI.boot();
+    }
+
+    init();
+  </script>
 </body>
 </html>
