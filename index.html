@@ -167,16 +167,15 @@
         "Segoe UI", sans-serif;
     }
 
-    /* UPDATED + FIXED TEXT STYLING */
     .gb-brand,
     .gb-top-right {
       font-family: "Saira", sans-serif;
       text-transform: uppercase;
       letter-spacing: 0.14em;
-      color: rgba(0, 0, 0, 0.85);
+      color: rgba(0,0,0,0.85);
       text-shadow:
-        0 0 3px rgba(255, 255, 255, 0.30),
-        0 0 6px rgba(0, 0, 0, 0.40);
+        0 0 3px rgba(255,255,255,0.30),
+        0 0 6px rgba(0,0,0,0.40);
     }
 
     .gb-brand {
@@ -222,6 +221,8 @@
       cursor: pointer;
       overflow: hidden;
       position: relative;
+      opacity: 1;
+      filter: brightness(1) blur(0);
     }
 
     .gb-screen::before {
@@ -242,10 +243,9 @@
       transition: transform 160ms ease-out;
     }
 
-    /* UPDATED FIXED LARGE EMOJI SIZE */
     .emoji {
       position: relative;
-      font-size: 180px;  /* fixed large size */
+      font-size: 180px;
       line-height: 1;
       filter: drop-shadow(0 0 10px rgba(15, 23, 42, 0.9));
       transform-origin: center;
@@ -438,8 +438,6 @@
       font-size: 8px;
     }
 
-    /* shell wobble */
-
     .wobble {
       animation: wobble 520ms ease-in-out;
     }
@@ -450,6 +448,60 @@
       40%  { transform: translateX(3px) rotate(0.45deg); }
       65%  { transform: translateX(-1.5px) rotate(-0.25deg); }
       100% { transform: translateX(0) rotate(0deg); }
+    }
+
+    /* ------------------------------------------------------------- */
+    /* STARTUP BOOT SEQUENCE */
+    /* ------------------------------------------------------------- */
+
+    .gb-screen.boot-off {
+      opacity: 0;
+      filter: brightness(0) blur(6px);
+    }
+
+    .gb-screen.boot-on {
+      animation: bootOn 1200ms ease-out forwards;
+    }
+
+    @keyframes bootOn {
+      0% {
+        opacity: 0;
+        filter: brightness(0) blur(8px);
+      }
+      20% {
+        opacity: 0.25;
+        filter: brightness(0.3) blur(4px);
+      }
+      55% {
+        opacity: 0.65;
+        filter: brightness(1.6) blur(1px);
+      }
+      75% {
+        opacity: 1;
+        filter: brightness(1.15) blur(0px);
+      }
+      100% {
+        opacity: 1;
+        filter: brightness(1) blur(0px);
+      }
+    }
+
+    .boot-flash::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: white;
+      opacity: 0;
+      pointer-events: none;
+      animation: bootFlash 520ms ease-out;
+    }
+
+    @keyframes bootFlash {
+      0% { opacity: 0; }
+      15% { opacity: 0.35; }
+      35% { opacity: 0.15; }
+      55% { opacity: 0.08; }
+      100% { opacity: 0; }
     }
 
   </style>
@@ -465,7 +517,7 @@
       </div>
 
       <div class="gb-screen-frame">
-        <div class="gb-screen" id="screen">
+        <div class="gb-screen boot-off boot-flash" id="screen">
           <div class="emoji-wrap" id="emojiWrap">
             <div class="emoji" id="emoji">😀</div>
           </div>
@@ -513,144 +565,173 @@
     </div>
   </div>
 
-  <script>
+<script>
 
-    const emojiList = [
-      "😀","😃","😄","😁","😆","😅","😂","🤣","🥲","🥹","☺️","😊","😇","🙂","🙃","😉","😌",
-      "😍","🥰","😘","😗","😙","😚","😋","😛","😝","😜","🤪","🤨","🧐","🤓","😎","🥸","🤩",
-      "🥳","🙂‍↕️","😏","😒","🙂‍↔️","😞","😔","😟","😕","🙁","☹️","😣","😖","😫","😩","🥺",
-      "😢","😭","😮‍💨","😤","😠","😡","🤬","🤯","😳","🥵","🥶","😱","😨","😰","😥","😓","🫣",
-      "🤗","🫡","🤔","🫢","🤭","🤫","🤥","😶","😶‍🌫️","😐","😑","😬","🫨","🫠","🙄","😯","😦",
-      "😧","😮","😲","🥱","😴","🫩","🤤","😪","😵","😵‍💫","🫥","🤐","🥴","🤢","🤮","🤧","😷",
-      "🤒","🤕","🤑","🤠","😈","👿","👹","👺","🤡","💩","👻","💀","☠️","👽","👾","🤖","🎃",
-      "😺","😸","😹","😻","😼","😽","🙀","😿","😾"
-    ];
+  const emojiList = [
+    "😀","😃","😄","😁","😆","😅","😂","🤣","🥲","🥹","☺️","😊","😇","🙂","🙃","😉","😌",
+    "😍","🥰","😘","😗","😙","😚","😋","😛","😝","😜","🤪","🤨","🧐","🤓","😎","🥸","🤩",
+    "🥳","🙂‍↕️","😏","😒","🙂‍↔️","😞","😔","😟","😕","🙁","☹️","😣","😖","😫","😩","🥺",
+    "😢","😭","😮‍💨","😤","😠","😡","🤬","🤯","😳","🥵","🥶","😱","😨","😰","😥","😓","🫣",
+    "🤗","🫡","🤔","🫢","🤭","🤫","🤥","😶","😶‍🌫️","😐","😑","😬","🫨","🫠","🙄","😯","😦",
+    "😧","😮","😲","🥱","😴","🫩","🤤","😪","😵","😵‍💫","🫥","🤐","🥴","🤢","🤮","🤧","😷",
+    "🤒","🤕","🤑","🤠","😈","👿","👹","👺","🤡","💩","👻","💀","☠️","👽","👾","🤖","🎃",
+    "😺","😸","😹","😻","😼","😽","🙀","😿","😾"
+  ];
 
-    const gbEl        = document.getElementById("gb");
-    const screenEl    = document.getElementById("screen");
-    const emojiEl     = document.getElementById("emoji");
-    const vibeFillEl  = document.getElementById("vibeFill");
-    const colorMenu   = document.getElementById("colorMenu");
-    const sizeDial    = document.getElementById("sizeDial");
+  const gbEl        = document.getElementById("gb");
+  const screenEl    = document.getElementById("screen");
+  const emojiEl     = document.getElementById("emoji");
+  const vibeFillEl  = document.getElementById("vibeFill");
+  const colorMenu   = document.getElementById("colorMenu");
+  const sizeDial    = document.getElementById("sizeDial");
 
-    let currentEmoji    = "😀";
-    let lastInteraction = Date.now();
-    let lastChange      = Date.now();
-    let autoEnabled     = false;
-    let holdMs          = randomHoldDuration();
+  let currentEmoji    = "😀";
+  let lastInteraction = Date.now();
+  let lastChange      = Date.now();
+  let autoEnabled     = false;
+  let holdMs          = randomHoldDuration();
 
-    const sizeLevels = [0.85, 1.0, 1.2];
-    const sizeAngles = [-20, 0, 20];
-    let sizeIndex    = 1;
+  const sizeLevels = [0.85, 1.0, 1.2];
+  const sizeAngles = [-20, 0, 20];
+  let sizeIndex    = 1;
 
-    function randomHoldDuration() {
-      return 2000 + Math.random() * 28000;
+  function randomHoldDuration() {
+    return 2000 + Math.random() * 28000;
+  }
+
+  function randomEmoji() {
+    return emojiList[Math.floor(Math.random() * emojiList.length)];
+  }
+
+  function markInteraction() {
+    lastInteraction = Date.now();
+    autoEnabled = false;
+  }
+
+  function setEmoji(e) {
+    if (!e) return;
+    currentEmoji = e;
+    emojiEl.textContent = e;
+
+    emojiEl.classList.remove("emoji-pop");
+    void emojiEl.offsetWidth;
+    emojiEl.classList.add("emoji-pop");
+
+    gbEl.classList.remove("wobble");
+    void gbEl.offsetWidth;
+    gbEl.classList.add("wobble");
+
+    adjustVibeGauge(e);
+  }
+
+  function adjustVibeGauge(e) {
+    let level = 0.5;
+
+    const happySet = "😀😃😄😁😆😅😂🤣☺️😊😇🙂😉😌😍🥰😘😗😙😚😋😛😝😜🤪😎🤩🥳🤗🤠😺😸😹😻😼😽";
+    const lowSet   = "😞😔😟😕🙁☹️😣😖😫😩🥺😢😭😮‍💨😤😠😡🤬😳😰😥😓😿😾";
+    const hotSet   = "🥵🤯😱😨😵😵‍💫";
+    const sickSet  = "🤢🤮🤧😷🤒🤕🥴";
+
+    if (happySet.includes(e)) level = 0.82;
+    else if (hotSet.includes(e)) level = 1.0;
+    else if (sickSet.includes(e)) level = 0.3;
+    else if (lowSet.includes(e)) level = 0.2;
+    else level = 0.55;
+
+    vibeFillEl.style.transform = `scaleX(${level})`;
+  }
+
+  function nextRandomEmoji() {
+    let next = randomEmoji();
+    if (emojiList.length > 1 && next === currentEmoji)
+      next = randomEmoji();
+    setEmoji(next);
+  }
+
+  function tick() {
+    const now = Date.now();
+    const idle = now - lastInteraction;
+
+    if (!autoEnabled && idle >= 10000) {
+      autoEnabled = true;
+      lastChange = now;
+      holdMs = randomHoldDuration();
     }
 
-    function randomEmoji() {
-      return emojiList[Math.floor(Math.random() * emojiList.length)];
-    }
-
-    function markInteraction() {
-      lastInteraction = Date.now();
-      autoEnabled = false;
-    }
-
-    function setEmoji(e) {
-      if (!e) return;
-      currentEmoji = e;
-      emojiEl.textContent = e;
-
-      emojiEl.classList.remove("emoji-pop");
-      void emojiEl.offsetWidth;
-      emojiEl.classList.add("emoji-pop");
-
-      gbEl.classList.remove("wobble");
-      void gbEl.offsetWidth;
-      gbEl.classList.add("wobble");
-
-      adjustVibeGauge(e);
-    }
-
-    function adjustVibeGauge(e) {
-      let level = 0.5;
-
-      const happySet = "😀😃😄😁😆😅😂🤣☺️😊😇🙂😉😌😍🥰😘😗😙😚😋😛😝😜🤪😎🤩🥳🤗🤠😺😸😹😻😼😽";
-      const lowSet   = "😞😔😟😕🙁☹️😣😖😫😩🥺😢😭😮‍💨😤😠😡🤬😳😰😥😓😿😾";
-      const hotSet   = "🥵🤯😱😨😵😵‍💫";
-      const sickSet  = "🤢🤮🤧😷🤒🤕🥴";
-
-      if (happySet.includes(e)) level = 0.82;
-      else if (hotSet.includes(e)) level = 1.0;
-      else if (sickSet.includes(e)) level = 0.3;
-      else if (lowSet.includes(e)) level = 0.2;
-      else level = 0.55;
-
-      vibeFillEl.style.transform = `scaleX(${level})`;
-    }
-
-    function nextRandomEmoji() {
-      let next = randomEmoji();
-      if (emojiList.length > 1 && next === currentEmoji) {
-        next = randomEmoji();
-      }
-      setEmoji(next);
-    }
-
-    function tick() {
-      const now = Date.now();
-      const idle = now - lastInteraction;
-
-      if (!autoEnabled && idle >= 10000) {
-        autoEnabled = true;
-        lastChange = now;
-        holdMs = randomHoldDuration();
-      }
-
-      if (autoEnabled && now - lastChange >= holdMs) {
-        nextRandomEmoji();
-        lastChange = now;
-        holdMs = randomHoldDuration();
-      }
-    }
-
-    setInterval(tick, 500);
-
-    colorMenu.addEventListener("click", (e) => {
-      const target = e.target.closest(".color-swatch");
-      if (!target) return;
-      const color = target.dataset.color;
-      gbEl.setAttribute("data-color", color);
-      markInteraction();
-      try { localStorage.setItem("emojiBuddyColor", color); } catch (_) {}
-    });
-
-    function applySize() {
-      const scale = sizeLevels[sizeIndex];
-      document.documentElement.style.setProperty("--emoji-scale", scale);
-      sizeDial.style.transform = `rotate(${sizeAngles[sizeIndex]}deg)`;
-    }
-
-    sizeDial.addEventListener("click", () => {
-      sizeIndex = (sizeIndex + 1) % sizeLevels.length;
-      applySize();
-      markInteraction();
-    });
-
-    screenEl.addEventListener("click", () => {
-      markInteraction();
+    if (autoEnabled && now - lastChange >= holdMs) {
       nextRandomEmoji();
-    });
+      lastChange = now;
+      holdMs = randomHoldDuration();
+    }
+  }
 
-    (function init() {
-      try {
-        const saved = localStorage.getItem("emojiBuddyColor");
-        if (saved) gbEl.setAttribute("data-color", saved);
-      } catch (_) {}
-      applySize();
-      setEmoji(currentEmoji);
-    })();
+  setInterval(tick, 500);
 
-  </script>
+  colorMenu.addEventListener("click", e => {
+    const target = e.target.closest(".color-swatch");
+    if (!target) return;
+    const color = target.dataset.color;
+    gbEl.setAttribute("data-color", color);
+    markInteraction();
+    try { localStorage.setItem("emojiBuddyColor", color); } catch(_) {}
+  });
+
+  function applySize() {
+    const scale = sizeLevels[sizeIndex];
+    document.documentElement.style.setProperty("--emoji-scale", scale);
+    sizeDial.style.transform = `rotate(${sizeAngles[sizeIndex]}deg)`;
+  }
+
+  sizeDial.addEventListener("click", () => {
+    sizeIndex = (sizeIndex + 1) % sizeLevels.length;
+    applySize();
+    markInteraction();
+  });
+
+  screenEl.addEventListener("click", () => {
+    markInteraction();
+    nextRandomEmoji();
+  });
+
+  /* -------------------------------------------------
+     STARTUP INIT
+     ------------------------------------------------- */
+
+  (function init() {
+
+    // load saved color
+    try {
+      const saved = localStorage.getItem("emojiBuddyColor");
+      if (saved) gbEl.setAttribute("data-color", saved);
+    } catch(_) {}
+
+    applySize();
+
+    // pick random emoji at startup
+    const startEmoji = randomEmoji();
+    currentEmoji = startEmoji;
+    emojiEl.textContent = startEmoji;
+    adjustVibeGauge(startEmoji);
+
+    // POWER-OFF look
+    screenEl.classList.add("boot-off");
+    screenEl.classList.add("boot-flash");
+
+    // POWER-UP sequence
+    setTimeout(() => {
+      screenEl.classList.add("boot-on");
+      screenEl.classList.remove("boot-off");
+
+      // remove flash overlay
+      setTimeout(() => {
+        screenEl.classList.remove("boot-flash");
+      }, 600);
+
+    }, 260);
+
+  })();
+
+</script>
+
 </body>
 </html>
