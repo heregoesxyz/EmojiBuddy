@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Emoji Buddy · Opulent Hardware</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Brand font -->
+  <link href="https://fonts.googleapis.com/css2?family=Saira:wght@500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --shell-main: #4c1d95;
+      --shell-dark: #2e1065;
+      --shell-light: #7c3aed;
+      --accent: #facc15;
+      --ring-soft: rgba(148, 163, 184, 0.16);
+      --emoji-scale: 1;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at top, #020617 0, #000 70%);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      color: #e5e7eb;
+      overflow: hidden;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .canvas {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+    }
+
+    /* SHELL --------------------------------------------------------------- */
+
+    .gb-shell {
+      position: relative;
+      width: min(420px, 92vw);
+      aspect-ratio: 3 / 4;
+      border-radius: 30px;
+      background:
+        radial-gradient(circle at -10% -20%, rgba(255, 255, 255, 0.10), transparent 55%),
+        radial-gradient(circle at 110% 120%, rgba(15, 23, 42, 0.65), transparent 60%),
+        linear-gradient(135deg, var(--shell-main), var(--shell-dark));
+      box-shadow:
+        0 0 0 1px rgba(15, 23, 42, 0.8),
+        0 24px 60px rgba(0, 0, 0, 0.95);
+      padding: 14px 14px 18px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      row-gap: 10px;
+      position: relative;
+    }
+
+    /* color themes */
+
+    .gb-shell[data-color="grape"] {
+      --shell-main: #4c1d95;
+      --shell-dark: #2e1065;
+      --shell-light: #7c3aed;
+      --accent: #facc15;
+      --ring-soft: rgba(196, 181, 253, 0.35);
+    }
+
+    .gb-shell[data-color="teal"] {
+      --shell-main: #0f766e;
+      --shell-dark: #115e59;
+      --shell-light: #2dd4bf;
+      --accent: #fbbf24;
+      --ring-soft: rgba(45, 212, 191, 0.35);
+    }
+
+    .gb-shell[data-color="kiwi"] {
+      --shell-main: #15803d;
+      --shell-dark: #14532d;
+      --shell-light: #4ade80;
+      --accent: #facc15;
+      --ring-soft: rgba(74, 222, 128, 0.35);
+    }
+
+    .gb-shell[data-color="berry"] {
+      --shell-main: #9f1239;
+      --shell-dark: #881337;
+      --shell-light: #fb7185;
+      --accent: #fbbf24;
+      --ring-soft: rgba(248, 113, 113, 0.35);
+    }
+
+    .gb-shell[data-color="smoke"] {
+      --shell-main: #374151;
+      --shell-dark: #111827;
+      --shell-light: #9ca3af;
+      --accent: #22c55e;
+      --ring-soft: rgba(148, 163, 184, 0.35);
+    }
+
+    .gb-shell[data-color="black"] {
+      --shell-main: #020617;
+      --shell-dark: #000000;
+      --shell-light: #4b5563;
+      --accent: #facc15;
+      --ring-soft: rgba(148, 163, 184, 0.4);
+    }
+
+    .gb-shell[data-color="beige"] {
+      --shell-main: #d9c9a3;
+      --shell-dark: #b7966b;
+      --shell-light: #f3e7c8;
+      --accent: #22c55e;
+      --ring-soft: rgba(150, 120, 80, 0.4);
+    }
+
+    .gb-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: conic-gradient(
+        from 140deg,
+        var(--ring-soft),
+        rgba(31, 41, 55, 0.8),
+        rgba(15, 23, 42, 0.3),
+        var(--ring-soft)
+      );
+      mix-blend-mode: screen;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .gb-shell::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      box-shadow: 0 0 42px rgba(15, 23, 42, 0.95) inset;
+      pointer-events: none;
+    }
+
+    /* TOP BAR ------------------------------------------------------------- */
+
+    .gb-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2px;
+      position: relative;
+      z-index: 1;
+      font-family: "Saira", system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+    }
+
+    .gb-brand {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+
+      color: rgba(0, 0, 0, 0.96);
+      text-shadow:
+        0 0 3px rgba(255, 255, 255, 0.7),
+        0 0 8px rgba(0, 0, 0, 0.65);
+    }
+
+    .gb-top-right {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+
+      color: rgba(0, 0, 0, 0.96);
+      text-shadow:
+        0 0 3px rgba(255, 255, 255, 0.7),
+        0 0 8px rgba(0, 0, 0, 0.65);
+    }
+
+    /* SCREEN -------------------------------------------------------------- */
+
+    .gb-screen-frame {
+      border-radius: 18px;
+      padding: 8px;
+      background:
+        linear-gradient(145deg, rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.95));
+      box-shadow:
+        0 0 0 1px rgba(15, 23, 42, 0.85),
+        0 10px 20px rgba(15, 23, 42, 0.9);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .gb-screen {
+      flex: 1;
+      margin-top: 2px;
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(248, 250, 252, 0.08), transparent 60%),
+        linear-gradient(180deg, #020617, #020617 60%, #020617);
+      box-shadow:
+        0 0 0 1px #020617,
+        0 0 45px rgba(15, 23, 42, 0.9) inset;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .gb-screen::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 10% 0%, rgba(248, 250, 252, 0.18), transparent 70%);
+      opacity: 0.5;
+      mix-blend-mode: screen;
+      pointer-events: none;
+    }
+
+    .emoji-wrap {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transform: scale(var(--emoji-scale));
+      transition: transform 160ms ease-out;
+    }
+
+    .emoji {
+      position: relative;
+      font-size: clamp(200px, 15vw, 118px);
+      line-height: 1;
+      filter: drop-shadow(0 0 10px rgba(15, 23, 42, 0.9));
+      transform-origin: center;
+      animation: breathe 6s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%   { transform: translateY(0);   filter: drop-shadow(0 0 10px rgba(15, 23, 42, 0.9)) brightness(1); }
+      50%  { transform: translateY(-2px); filter: drop-shadow(0 0 14px rgba(15, 23, 42, 1)) brightness(1.04); }
+      100% { transform: translateY(0);   filter: drop-shadow(0 0 10px rgba(15, 23, 42, 0.9)) brightness(1); }
+    }
+
+    .emoji-pop {
+      animation: emojiPop 260ms ease-out, breathe 6s ease-in-out 260ms infinite;
+    }
+
+    @keyframes emojiPop {
+      0%   { transform: scale(0.88); }
+      60%  { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    /* BOTTOM CONTROLS ----------------------------------------------------- */
+
+    .gb-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .speaker {
+      display: grid;
+      grid-template-columns: repeat(3, 5px);
+      grid-auto-rows: 5px;
+      gap: 4px;
+      opacity: 0.6;
+      filter: drop-shadow(0 1px 0 rgba(15, 23, 42, 0.5));
+    }
+
+    .speaker-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .color-strip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .color-label {
+      font-family: "Saira", sans-serif;
+      font-size: 8px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(0, 0, 0, 0.75);
+      text-shadow:
+        0 0 3px rgba(255, 255, 255, 0.35),
+        0 0 6px rgba(0, 0, 0, 0.45);
+    }
+
+    .color-swatches {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 6px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.92);
+      box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.8),
+        0 0 0 1px rgba(15, 23, 42, 0.9);
+    }
+
+    .color-swatch {
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 23, 42, 0.9);
+      cursor: pointer;
+      padding: 0;
+      outline: none;
+    }
+
+    .color-swatch[data-color="grape"] { background: linear-gradient(135deg,#7c3aed,#4c1d95); }
+    .color-swatch[data-color="teal"]  { background: linear-gradient(135deg,#2dd4bf,#0f766e); }
+    .color-swatch[data-color="kiwi"]  { background: linear-gradient(135deg,#4ade80,#15803d); }
+    .color-swatch[data-color="berry"] { background: linear-gradient(135deg,#fb7185,#9f1239); }
+    .color-swatch[data-color="smoke"] { background: linear-gradient(135deg,#9ca3af,#374151); }
+    .color-swatch[data-color="black"] { background: linear-gradient(135deg,#020617,#111827); }
+    .color-swatch[data-color="beige"] { background: linear-gradient(135deg,#f3e7c8,#b7966b); }
+
+    .status-strip {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      font-family: "Saira", sans-serif;
+      font-size: 8px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(0, 0, 0, 0.75);
+      text-shadow:
+        0 0 3px rgba(255, 255, 255, 0.35),
+        0 0 6px rgba(0, 0, 0, 0.45);
+    }
+
+    .vibe-label {
+      opacity: 0.9;
+    }
+
+    .vibe-gauge {
+      width: 72px;
+      height: 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 23, 42, 0.9);
+      background:
+        radial-gradient(circle at 0 50%, rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 1));
+      overflow: hidden;
+      position: relative;
+    }
+
+    .vibe-fill {
+      position: absolute;
+      inset: 0;
+      transform-origin: left center;
+      transform: scaleX(0.5);
+      border-radius: inherit;
+      background: linear-gradient(90deg, #22c55e, #facc15, #f97316);
+      box-shadow: 0 0 10px rgba(250, 204, 21, 0.8);
+      transition: transform 260ms ease-out;
+    }
+
+    /* SIZE DIAL ----------------------------------------------------------- */
+
+    .size-strip {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      font-family: "Saira", sans-serif;
+      font-size: 8px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(0, 0, 0, 0.75);
+      text-shadow:
+        0 0 3px rgba(255, 255, 255, 0.35),
+        0 0 6px rgba(0, 0, 0, 0.45);
+    }
+
+    .size-dial-wrap {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .size-dial {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(248, 250, 252, 0.25), transparent 60%),
+        linear-gradient(145deg, #111827, #020617);
+      box-shadow:
+        0 0 0 1px rgba(15, 23, 42, 0.95),
+        0 3px 6px rgba(0, 0, 0, 0.8);
+      position: relative;
+      cursor: pointer;
+      transition: box-shadow 120ms ease-out, transform 120ms ease-out;
+    }
+
+    .size-dial-notch {
+      position: absolute;
+      top: 2px;
+      left: 50%;
+      width: 2px;
+      height: 8px;
+      border-radius: 999px;
+      background: #f9fafb;
+      transform: translateX(-50%);
+      box-shadow: 0 0 4px rgba(248, 250, 252, 0.8);
+    }
+
+    .size-dial-label {
+      font-size: 8px;
+    }
+
+    /* shell wobble */
+
+    .wobble {
+      animation: wobble 520ms ease-in-out;
+    }
+
+    @keyframes wobble {
+      0%   { transform: translateX(0) rotate(0deg); }
+      20%  { transform: translateX(-2px) rotate(-0.45deg); }
+      40%  { transform: translateX(3px) rotate(0.45deg); }
+      65%  { transform: translateX(-1.5px) rotate(-0.25deg); }
+      100% { transform: translateX(0) rotate(0deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="gb-shell" id="gb" data-color="grape">
+      <div class="gb-top">
+        <div class="gb-brand">Emoji Buddy</div>
+        <div class="gb-top-right"> Opulent Hardware</div>
+      </div>
+
+      <div class="gb-screen-frame">
+        <div class="gb-screen" id="screen">
+          <div class="emoji-wrap" id="emojiWrap">
+            <div class="emoji" id="emoji">😀</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gb-bottom">
+        <div class="speaker" aria-hidden="true">
+          <div class="speaker-dot"></div><div class="speaker-dot"></div><div class="speaker-dot"></div>
+          <div class="speaker-dot"></div><div class="speaker-dot"></div><div class="speaker-dot"></div>
+          <div class="speaker-dot"></div><div class="speaker-dot"></div><div class="speaker-dot"></div>
+        </div>
+
+        <div class="color-strip">
+          <span class="color-label">Color</span>
+          <div class="color-swatches" id="colorMenu">
+            <button class="color-swatch" data-color="grape" title="Grape"></button>
+            <button class="color-swatch" data-color="teal" title="Teal"></button>
+            <button class="color-swatch" data-color="kiwi" title="Kiwi"></button>
+            <button class="color-swatch" data-color="berry" title="Berry"></button>
+            <button class="color-swatch" data-color="smoke" title="Smoke"></button>
+            <button class="color-swatch" data-color="black" title="Black"></button>
+            <button class="color-swatch" data-color="beige" title="Beige"></button>
+          </div>
+        </div>
+
+        <div class="size-strip">
+          <span class="size-dial-label">Size</span>
+          <div class="size-dial-wrap">
+            <div class="size-dial" id="sizeDial">
+              <div class="size-dial-notch"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="status-strip">
+          <div class="vibe-label">Vibes</div>
+          <div class="vibe-gauge">
+            <div class="vibe-fill" id="vibeFill"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // emoji list
+    const emojiList = [
+      "😀","😃","😄","😁","😆","😅","😂","🤣","🥲","🥹","☺️","😊","😇","🙂","🙃","😉","😌",
+      "😍","🥰","😘","😗","😙","😚","😋","😛","😝","😜","🤪","🤨","🧐","🤓","😎","🥸","🤩",
+      "🥳","🙂‍↕️","😏","😒","🙂‍↔️","😞","😔","😟","😕","🙁","☹️","😣","😖","😫","😩","🥺",
+      "😢","😭","😮‍💨","😤","😠","😡","🤬","🤯","😳","🥵","🥶","😱","😨","😰","😥","😓","🫣",
+      "🤗","🫡","🤔","🫢","🤭","🤫","🤥","😶","😶‍🌫️","😐","😑","😬","🫨","🫠","🙄","😯","😦",
+      "😧","😮","😲","🥱","😴","🫩","🤤","😪","😵","😵‍💫","🫥","🤐","🥴","🤢","🤮","🤧","😷",
+      "🤒","🤕","🤑","🤠","😈","👿","👹","👺","🤡","💩","👻","💀","☠️","👽","👾","🤖","🎃",
+      "😺","😸","😹","😻","😼","😽","🙀","😿","😾"
+    ];
+
+    const gbEl        = document.getElementById("gb");
+    const screenEl    = document.getElementById("screen");
+    const emojiEl     = document.getElementById("emoji");
+    const vibeFillEl  = document.getElementById("vibeFill");
+    const colorMenu   = document.getElementById("colorMenu");
+    const sizeDial    = document.getElementById("sizeDial");
+
+    let currentEmoji    = "😀";
+    let lastInteraction = Date.now();
+    let lastChange      = Date.now();
+    let autoEnabled     = false;
+    let holdMs          = randomHoldDuration();
+
+    const sizeLevels = [0.85, 1.0, 1.2];
+    const sizeAngles = [-20, 0, 20];
+    let sizeIndex    = 1; // medium
+
+    function randomHoldDuration() {
+      return 2000 + Math.random() * 28000; // 2–30s
+    }
+
+    function randomEmoji() {
+      return emojiList[Math.floor(Math.random() * emojiList.length)];
+    }
+
+    function markInteraction() {
+      lastInteraction = Date.now();
+      autoEnabled = false;
+    }
+
+    function setEmoji(e) {
+      if (!e) return;
+      currentEmoji = e;
+      emojiEl.textContent = e;
+
+      emojiEl.classList.remove("emoji-pop");
+      void emojiEl.offsetWidth;
+      emojiEl.classList.add("emoji-pop");
+
+      gbEl.classList.remove("wobble");
+      void gbEl.offsetWidth;
+      gbEl.classList.add("wobble");
+
+      adjustVibeGauge(e);
+    }
+
+    function adjustVibeGauge(e) {
+      if (!vibeFillEl) return;
+      let level = 0.5;
+
+      const happySet = "😀😃😄😁😆😅😂🤣☺️😊😇🙂😉😌😍🥰😘😗😙😚😋😛😝😜🤪😎🤩🥳🤗🤠😺😸😹😻😼😽";
+      const lowSet   = "😞😔😟😕🙁☹️😣😖😫😩🥺😢😭😮‍💨😤😠😡🤬😳😰😥😓😿😾";
+      const hotSet   = "🥵🤯😱😨😵😵‍💫";
+      const sickSet  = "🤢🤮🤧😷🤒🤕🥴";
+
+      if (happySet.includes(e)) level = 0.82;
+      else if (hotSet.includes(e)) level = 1.0;
+      else if (sickSet.includes(e)) level = 0.3;
+      else if (lowSet.includes(e)) level = 0.2;
+      else level = 0.55;
+
+      vibeFillEl.style.transform = `scaleX(${level})`;
+    }
+
+    function nextRandomEmoji() {
+      let next = randomEmoji();
+      if (emojiList.length > 1 && next === currentEmoji) {
+        next = randomEmoji();
+      }
+      setEmoji(next);
+    }
+
+    // idle / auto mode
+    function tick() {
+      const now = Date.now();
+      const idle = now - lastInteraction;
+
+      if (!autoEnabled && idle >= 10000) {
+        autoEnabled = true;
+        lastChange = now;
+        holdMs = randomHoldDuration();
+      }
+
+      if (autoEnabled && now - lastChange >= holdMs) {
+        nextRandomEmoji();
+        lastChange = now;
+        holdMs = randomHoldDuration();
+      }
+    }
+
+    setInterval(tick, 500);
+
+    // color selection
+    colorMenu.addEventListener("click", (e) => {
+      const target = e.target.closest(".color-swatch");
+      if (!target) return;
+      const color = target.dataset.color;
+      if (!color) return;
+      gbEl.setAttribute("data-color", color);
+      markInteraction();
+      try {
+        localStorage.setItem("emojiBuddyColor", color);
+      } catch (_) {}
+    });
+
+    // size dial: cycle small / medium / large
+    function applySize() {
+      const scale = sizeLevels[sizeIndex];
+      document.documentElement.style.setProperty("--emoji-scale", scale);
+      sizeDial.style.transform = `rotate(${sizeAngles[sizeIndex]}deg)`;
+    }
+
+    sizeDial.addEventListener("click", () => {
+      sizeIndex = (sizeIndex + 1) % sizeLevels.length;
+      applySize();
+      markInteraction();
+    });
+
+    // manual emoji change
+    screenEl.addEventListener("click", () => {
+      markInteraction();
+      nextRandomEmoji();
+    });
+
+    // init
+    (function init() {
+      try {
+        const saved = localStorage.getItem("emojiBuddyColor");
+        if (saved) gbEl.setAttribute("data-color", saved);
+      } catch (_) {}
+      applySize();
+      setEmoji(currentEmoji);
+    })();
+  </script>
+</body>
+</html>
