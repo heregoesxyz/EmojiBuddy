@@ -167,28 +167,26 @@
         "Segoe UI", sans-serif;
     }
 
+    /* UPDATED + FIXED TEXT STYLING */
+    .gb-brand,
+    .gb-top-right {
+      font-family: "Saira", sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: rgba(0, 0, 0, 0.85);
+      text-shadow:
+        0 0 3px rgba(255, 255, 255, 0.30),
+        0 0 6px rgba(0, 0, 0, 0.40);
+    }
+
     .gb-brand {
       font-size: 13px;
       font-weight: 600;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-
-      color: rgba(0, 0, 0, 0.96);
-      text-shadow:
-        0 0 3px rgba(255, 255, 255, 0.7),
-        0 0 8px rgba(0, 0, 0, 0.65);
     }
 
     .gb-top-right {
       font-size: 11px;
       font-weight: 500;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-
-      color: rgba(0, 0, 0, 0.96);
-      text-shadow:
-        0 0 3px rgba(255, 255, 255, 0.7),
-        0 0 8px rgba(0, 0, 0, 0.65);
     }
 
     /* SCREEN -------------------------------------------------------------- */
@@ -244,9 +242,10 @@
       transition: transform 160ms ease-out;
     }
 
+    /* UPDATED FIXED LARGE EMOJI SIZE */
     .emoji {
       position: relative;
-      font-size: clamp(200px, 15vw, 118px);
+      font-size: 180px;  /* fixed large size */
       line-height: 1;
       filter: drop-shadow(0 0 10px rgba(15, 23, 42, 0.9));
       transform-origin: center;
@@ -254,9 +253,9 @@
     }
 
     @keyframes breathe {
-      0%   { transform: translateY(0);   filter: drop-shadow(0 0 10px rgba(15, 23, 42, 0.9)) brightness(1); }
-      50%  { transform: translateY(-2px); filter: drop-shadow(0 0 14px rgba(15, 23, 42, 1)) brightness(1.04); }
-      100% { transform: translateY(0);   filter: drop-shadow(0 0 10px rgba(15, 23, 42, 0.9)) brightness(1); }
+      0%   { transform: translateY(0); }
+      50%  { transform: translateY(-2px); }
+      100% { transform: translateY(0); }
     }
 
     .emoji-pop {
@@ -452,14 +451,17 @@
       65%  { transform: translateX(-1.5px) rotate(-0.25deg); }
       100% { transform: translateX(0) rotate(0deg); }
     }
+
   </style>
 </head>
+
 <body>
   <div class="canvas">
     <div class="gb-shell" id="gb" data-color="grape">
+
       <div class="gb-top">
         <div class="gb-brand">Emoji Buddy</div>
-        <div class="gb-top-right"> Opulent Hardware</div>
+        <div class="gb-top-right">Opulent Hardware</div>
       </div>
 
       <div class="gb-screen-frame">
@@ -471,7 +473,8 @@
       </div>
 
       <div class="gb-bottom">
-        <div class="speaker" aria-hidden="true">
+
+        <div class="speaker">
           <div class="speaker-dot"></div><div class="speaker-dot"></div><div class="speaker-dot"></div>
           <div class="speaker-dot"></div><div class="speaker-dot"></div><div class="speaker-dot"></div>
           <div class="speaker-dot"></div><div class="speaker-dot"></div><div class="speaker-dot"></div>
@@ -480,13 +483,13 @@
         <div class="color-strip">
           <span class="color-label">Color</span>
           <div class="color-swatches" id="colorMenu">
-            <button class="color-swatch" data-color="grape" title="Grape"></button>
-            <button class="color-swatch" data-color="teal" title="Teal"></button>
-            <button class="color-swatch" data-color="kiwi" title="Kiwi"></button>
-            <button class="color-swatch" data-color="berry" title="Berry"></button>
-            <button class="color-swatch" data-color="smoke" title="Smoke"></button>
-            <button class="color-swatch" data-color="black" title="Black"></button>
-            <button class="color-swatch" data-color="beige" title="Beige"></button>
+            <button class="color-swatch" data-color="grape"></button>
+            <button class="color-swatch" data-color="teal"></button>
+            <button class="color-swatch" data-color="kiwi"></button>
+            <button class="color-swatch" data-color="berry"></button>
+            <button class="color-swatch" data-color="smoke"></button>
+            <button class="color-swatch" data-color="black"></button>
+            <button class="color-swatch" data-color="beige"></button>
           </div>
         </div>
 
@@ -505,12 +508,13 @@
             <div class="vibe-fill" id="vibeFill"></div>
           </div>
         </div>
+
       </div>
     </div>
   </div>
 
   <script>
-    // emoji list
+
     const emojiList = [
       "😀","😃","😄","😁","😆","😅","😂","🤣","🥲","🥹","☺️","😊","😇","🙂","🙃","😉","😌",
       "😍","🥰","😘","😗","😙","😚","😋","😛","😝","😜","🤪","🤨","🧐","🤓","😎","🥸","🤩",
@@ -537,10 +541,10 @@
 
     const sizeLevels = [0.85, 1.0, 1.2];
     const sizeAngles = [-20, 0, 20];
-    let sizeIndex    = 1; // medium
+    let sizeIndex    = 1;
 
     function randomHoldDuration() {
-      return 2000 + Math.random() * 28000; // 2–30s
+      return 2000 + Math.random() * 28000;
     }
 
     function randomEmoji() {
@@ -569,7 +573,6 @@
     }
 
     function adjustVibeGauge(e) {
-      if (!vibeFillEl) return;
       let level = 0.5;
 
       const happySet = "😀😃😄😁😆😅😂🤣☺️😊😇🙂😉😌😍🥰😘😗😙😚😋😛😝😜🤪😎🤩🥳🤗🤠😺😸😹😻😼😽";
@@ -594,7 +597,6 @@
       setEmoji(next);
     }
 
-    // idle / auto mode
     function tick() {
       const now = Date.now();
       const idle = now - lastInteraction;
@@ -614,20 +616,15 @@
 
     setInterval(tick, 500);
 
-    // color selection
     colorMenu.addEventListener("click", (e) => {
       const target = e.target.closest(".color-swatch");
       if (!target) return;
       const color = target.dataset.color;
-      if (!color) return;
       gbEl.setAttribute("data-color", color);
       markInteraction();
-      try {
-        localStorage.setItem("emojiBuddyColor", color);
-      } catch (_) {}
+      try { localStorage.setItem("emojiBuddyColor", color); } catch (_) {}
     });
 
-    // size dial: cycle small / medium / large
     function applySize() {
       const scale = sizeLevels[sizeIndex];
       document.documentElement.style.setProperty("--emoji-scale", scale);
@@ -640,13 +637,11 @@
       markInteraction();
     });
 
-    // manual emoji change
     screenEl.addEventListener("click", () => {
       markInteraction();
       nextRandomEmoji();
     });
 
-    // init
     (function init() {
       try {
         const saved = localStorage.getItem("emojiBuddyColor");
@@ -655,6 +650,7 @@
       applySize();
       setEmoji(currentEmoji);
     })();
+
   </script>
 </body>
 </html>
